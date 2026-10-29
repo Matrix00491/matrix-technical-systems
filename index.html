@@ -980,5 +980,43 @@
       });
     })();
   </script>
+
+  <!-- PWA install banner: paste immediately before </body> in index.html -->
+<style>
+  #pwaInstallBanner{position:fixed;z-index:9999;left:16px;right:16px;bottom:16px;max-width:560px;margin:auto;padding:14px 16px;background:#101620;color:#f4f7fb;border:1px solid rgba(72,168,255,.45);border-radius:16px;box-shadow:0 12px 40px #0008;display:none;align-items:center;gap:12px;font:14px/1.4 system-ui,sans-serif}
+  #pwaInstallBanner .pwa-copy{flex:1}#pwaInstallBanner strong{display:block;margin-bottom:3px}#pwaInstallBanner button{border:0;border-radius:9px;padding:10px 13px;font-weight:700;cursor:pointer}#pwaInstallButton{background:#48a8ff;color:#07111c}#pwaDismissButton{background:#202b39;color:#fff}
+</style>
+<div id="pwaInstallBanner" role="region" aria-label="Install M Delta 3 X app">
+  <div class="pwa-copy"><strong>Install M∆3× Technical Systems</strong><span id="pwaInstallHelp">Add our app to your home screen for quick access.</span></div>
+  <button id="pwaInstallButton" type="button">Install</button>
+  <button id="pwaDismissButton" type="button" aria-label="Dismiss install banner">×</button>
+</div>
+<script>
+(() => {
+  let installPrompt = null;
+  const banner = document.getElementById('pwaInstallBanner');
+  const installButton = document.getElementById('pwaInstallButton');
+  const help = document.getElementById('pwaInstallHelp');
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  if (isStandalone) return;
+  if (isIOS) {
+    help.textContent = 'On iPhone: tap Share, then “Add to Home Screen”.';
+    banner.style.display = 'flex';
+    installButton.textContent = 'How to install';
+    installButton.addEventListener('click', () => { help.textContent = 'In Safari, tap the Share icon, scroll down and choose “Add to Home Screen”, then tap Add.'; });
+  }
+  window.addEventListener('beforeinstallprompt', (event) => {
+    event.preventDefault(); installPrompt = event; banner.style.display = 'flex';
+  });
+  installButton.addEventListener('click', async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt(); await installPrompt.userChoice; installPrompt = null; banner.style.display = 'none';
+  });
+  document.getElementById('pwaDismissButton').addEventListener('click', () => { banner.style.display = 'none'; });
+  window.addEventListener('appinstalled', () => { banner.style.display = 'none'; });
+})();
+</script>
+
 </body>
 </html>
